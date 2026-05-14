@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Set up Python
+        run: uv python install 3.12
+      - name: Install backend dependencies
+        run: uv sync --all-extras --dev
+      - name: Lint backend
+        run: uv run ruff check backend scripts
+      - name: Unit and import tests
+        run: uv run pytest
+      - name: API smoke test
+        run: FIBERMAP_DATABASE_URL=sqlite:///./smoke.db uv run python scripts/smoke_api.py
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm install
+      - name: Lint frontend
+        working-directory: frontend
+        run: npm run lint
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
