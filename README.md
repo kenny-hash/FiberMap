@@ -27,6 +27,24 @@ FiberMap 是一个面向内部业务网络的资产视角拓扑映射平台。MV
 
 ## 本地运行
 
+### 一键启动
+
+```bash
+./scripts/start_local.sh
+```
+
+脚本会自动同步后端依赖、安装前端依赖，并同时启动 FastAPI 与 Vite 开发服务。默认地址：
+
+- 前端：`http://localhost:5173`
+- 后端：`http://127.0.0.1:8000`
+- 健康检查：`http://127.0.0.1:8000/api/health`
+
+常用环境变量：
+
+- `FIBERMAP_SKIP_INSTALL=1`：跳过依赖安装，适合依赖已安装后的快速重启。
+- `FIBERMAP_BACKEND_PORT=8001`：修改后端监听端口。
+- `FIBERMAP_FRONTEND_PORT=5174`：修改前端监听端口。
+
 ### 后端
 
 ```bash
