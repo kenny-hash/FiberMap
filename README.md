@@ -42,6 +42,9 @@ FiberMap 是一个面向内部业务网络的资产视角拓扑映射平台。MV
 常用环境变量：
 
 - `FIBERMAP_SKIP_INSTALL=1`：跳过依赖安装，适合依赖已安装后的快速重启。
+- `FIBERMAP_BACKEND_HOST=0.0.0.0`：修改后端监听地址；当监听地址是 `0.0.0.0` 或 `::` 时，脚本默认向浏览器注入 `localhost` 作为可访问的 API 主机。
+- `FIBERMAP_BACKEND_CLIENT_HOST=192.168.1.10`：单独指定浏览器访问后端时使用的主机名或 IP。
+- `FIBERMAP_API_BASE=http://192.168.1.10:8000`：完整覆盖前端使用的后端 API 基础地址。
 - `FIBERMAP_BACKEND_PORT=8001`：修改后端监听端口。
 - `FIBERMAP_FRONTEND_PORT=5174`：修改前端监听端口。
 

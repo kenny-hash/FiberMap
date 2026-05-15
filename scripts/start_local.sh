@@ -5,9 +5,22 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 FRONTEND_DIR="$ROOT_DIR/frontend"
 BACKEND_HOST="${FIBERMAP_BACKEND_HOST:-127.0.0.1}"
 BACKEND_PORT="${FIBERMAP_BACKEND_PORT:-8000}"
+BACKEND_CLIENT_HOST="${FIBERMAP_BACKEND_CLIENT_HOST:-}"
 FRONTEND_HOST="${FIBERMAP_FRONTEND_HOST:-0.0.0.0}"
 FRONTEND_PORT="${FIBERMAP_FRONTEND_PORT:-5173}"
 SKIP_INSTALL="${FIBERMAP_SKIP_INSTALL:-0}"
+
+if [[ -z "$BACKEND_CLIENT_HOST" ]]; then
+  case "$BACKEND_HOST" in
+    0.0.0.0|::|"")
+      BACKEND_CLIENT_HOST="localhost"
+      ;;
+    *)
+      BACKEND_CLIENT_HOST="$BACKEND_HOST"
+      ;;
+  esac
+fi
+BACKEND_API_BASE="${FIBERMAP_API_BASE:-http://$BACKEND_CLIENT_HOST:$BACKEND_PORT}"
 
 BACKEND_PID=""
 FRONTEND_PID=""
@@ -90,10 +103,10 @@ uv run uvicorn app.main:app \
   --reload &
 BACKEND_PID="$!"
 
-wait_for_url "http://$BACKEND_HOST:$BACKEND_PORT/api/health" "后端"
+wait_for_url "$BACKEND_API_BASE/api/health" "后端"
 
 log "启动前端：http://localhost:$FRONTEND_PORT"
-VITE_API_BASE="http://$BACKEND_HOST:$BACKEND_PORT" \
+VITE_API_BASE="$BACKEND_API_BASE" \
   npm --prefix "$FRONTEND_DIR" run dev -- --host "$FRONTEND_HOST" --port "$FRONTEND_PORT" &
 FRONTEND_PID="$!"
 
@@ -101,8 +114,9 @@ cat <<INFO
 
 FiberMap 本地开发环境已启动：
   - 前端：http://localhost:$FRONTEND_PORT
-  - 后端：http://$BACKEND_HOST:$BACKEND_PORT
-  - 健康检查：http://$BACKEND_HOST:$BACKEND_PORT/api/health
+  - 后端监听：http://$BACKEND_HOST:$BACKEND_PORT
+  - 浏览器 API：http://$BACKEND_API_BASE
+  - 健康检查：$BACKEND_API_BASE/api/health
 
 按 Ctrl+C 可同时停止前后端服务。
 如需跳过依赖安装：FIBERMAP_SKIP_INSTALL=1 ./scripts/start_local.sh
